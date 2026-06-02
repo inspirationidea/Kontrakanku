@@ -1,0 +1,183 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERADMIN
+}
+
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  CLOSED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  phone         String?
+  ktpPhoto      String?        // URL/Path to KTP image upload
+  profilePhoto  String?        // URL/Path to profile avatar
+  role          Role           @default(USER)
+  isVerified    Boolean        @default(false) // Admin verification status for user/KTP
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  bookings      Booking[]
+  reviews       Review[]
+  notifications Notification[]
+  complaints    Complaint[]
+  properties    Property[]     @relation("AdminProperties")
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  name        String
+  address     String
+  lat         Float    // Latitude coordinate
+  lng         Float    // Longitude coordinate
+  description String?
+  coverImage  String?  // Main display photo
+  adminId     String   // Owner/Admin of this property
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  admin       User     @relation("AdminProperties", fields: [adminId], references: [id], onDelete: Cascade)
+  units       Unit[]
+  photos      Photo[]
+  reviews     Review[]
+}
+
+model Unit {
+  id          String   @id @default(uuid())
+  propertyId  String
+  unitNumber  String   // e.g. "Room 101"
+  type        String   // e.g. "Deluxe", "Standard"
+  price       Float    // Price per month
+  deposit     Float    @default(0.0) // Deposit fee
+  facilities  String[] // AC, WiFi, Bathroom, etc.
+  status      String   @default("AVAILABLE") // AVAILABLE, OCCUPIED, MAINTENANCE
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+  photos      Photo[]
+}
+
+model Photo {
+  id         String    @id @default(uuid())
+  url        String    // MinIO URL
+  caption    String?
+  order      Int       @default(0)
+  propertyId String?
+  unitId     String?
+  createdAt  DateTime  @default(now())
+
+  // Relations
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  unit       Unit?     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  userId      String
+  unitId      String
+  startDate   DateTime
+  endDate     DateTime
+  status      BookingStatus @default(PENDING)
+  totalPrice  Float
+  ktpDocument String?       // Uploaded photo specifically for this booking
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit        Unit          @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  payments    Payment[]
+}
+
+model Payment {
+  id         String        @id @default(uuid())
+  bookingId  String
+  amount     Float
+  method     String?       // Midtrans method (QRIS, VA, Bank Transfer)
+  status     PaymentStatus @default(PENDING)
+  invoiceUrl String?       // PDF receipt URL
+  paidAt     DateTime?
+  dueDate    DateTime
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  // Relations
+  booking    Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  userId     String
+  propertyId String
+  rating     Int      // 1 to 5 stars
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // INFO, BOOKING, PAYMENT, DANGER
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Complaint {
+  id          String          @id @default(uuid())
+  userId      String
+  unitInfo    String          // "Kamar 101 - Kontrakan Dago Asri" (auto-filled)
+  subject     String          // Judul keluhan
+  description String          // Detail keluhan
+  photoUrl    String?         // Foto opsional
+  status      ComplaintStatus @default(PENDING)
+  adminNote   String?         // Catatan/respon admin
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

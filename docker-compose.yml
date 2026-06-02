@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgis/postgis:15-3.3
+    container_name: kontrakanku-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: kontrakanku_user
+      POSTGRES_PASSWORD: kontrakanku_password
+      POSTGRES_DB: kontrakanku_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  minio-storage:
+    image: minio/minio:latest
+    container_name: kontrakanku-minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: kontrakanku_storage_admin
+      MINIO_ROOT_PASSWORD: kontrakanku_storage_password
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+
+volumes:
+  pgdata:
+    driver: local
+  miniodata:
+    driver: local

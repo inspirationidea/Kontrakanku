@@ -1,0 +1,692 @@
+
+PRODUCT REQUIREMENTS DOCUMENT
+KontrakanKu
+Platform Manajemen & Pemesanan Kontrakan Multi-Lokasi
+
+Versi Dokumen
+1.0.0
+Tanggal
+26 Mei 2026
+Status
+Draft - For Review
+Platform
+Web & Mobile (Android/iOS)
+Tech Stack
+React Vite, Prisma ORM, PostgreSQL, Dokploy
+
+1. Overview & Tujuan Produk
+
+1.1 Latar Belakang
+KontrakanKu adalah platform digital terintegrasi berbasis Web dan Mobile Application yang dirancang khusus untuk memudahkan pengelolaan dan pemesanan properti kontrakan yang tersebar di berbagai lokasi berbeda. Platform ini menghubungkan pemilik kontrakan (admin/owner) dengan calon penyewa (user) secara efisien dan transparan.
+Tantangan utama yang diselesaikan oleh platform ini adalah sulitnya mengelola portofolio kontrakan multi-lokasi secara terpusat, keterbatasan informasi bagi calon penyewa dalam menemukan kontrakan yang tepat, serta proses pemesanan dan pembayaran yang masih manual dan tidak efisien.
+
+1.2 Tujuan Produk
+Menyediakan tampilan peta interaktif yang menampilkan semua lokasi kontrakan secara real-time
+Memberikan informasi lengkap setiap unit kontrakan (foto, kondisi, rating, ketersediaan)
+Memfasilitasi proses pemesanan (booking) dan pembayaran secara online end-to-end
+Memberikan notifikasi real-time kepada user dan admin terkait status transaksi
+Menyediakan dashboard administrasi terpusat untuk monitoring dan pengelolaan semua properti
+Menyediakan profil user lengkap dengan riwayat sewa dan pembayaran
+
+1.3 Lingkup Produk
+Platform
+Target Pengguna
+Fungsi Utama
+Web App (Admin)
+Pemilik / Admin Kontrakan
+Kelola properti, monitoring, laporan keuangan
+Web App (User)
+Calon Penyewa
+Cari kontrakan, booking, bayar via browser
+Mobile App (Android/iOS)
+Calon Penyewa & Admin
+Akses penuh semua fitur di perangkat mobile
+
+
+2. Stakeholder & User Persona
+
+2.1 Stakeholder
+Peran
+Deskripsi
+Kepentingan Utama
+Owner / Pemilik
+Pemilik properti kontrakan
+Memaksimalkan tingkat hunian & pendapatan
+Admin
+Pengelola operasional harian
+Efisiensi pengelolaan multi-properti
+User / Penyewa
+Calon & penghuni aktif kontrakan
+Kemudahan cari, pesan, dan bayar kontrakan
+Super Admin
+Tim teknis platform
+Monitoring sistem & keamanan platform
+
+2.2 User Persona
+Persona 1: Budi (Penyewa)
+Usia 25 tahun, karyawan swasta yang baru pindah kota. Membutuhkan kontrakan yang mudah ditemukan, bisa dilihat kondisinya secara online, dan proses sewanya tidak ribet. Lebih suka bertransaksi via smartphone.
+Persona 2: Pak Hasan (Admin/Owner)
+Pemilik 3 kontrakan di lokasi berbeda. Kesulitan memonitor semua unit secara bersamaan. Membutuhkan dashboard terpusat yang bisa diakses kapan saja dan notifikasi langsung ketika ada pesanan atau pembayaran masuk.
+
+3. Fitur & Functional Requirements
+
+3.1 Modul Peta & Lokasi Kontrakan
+Fitur utama yang menampilkan semua properti kontrakan dalam satu tampilan peta terintegrasi.
+Kode
+Fitur
+Deskripsi
+Prioritas
+MAP-01
+Peta Interaktif Multi-Lokasi
+Menampilkan semua pin/marker kontrakan di atas peta (Google Maps / Leaflet.js) berdasarkan koordinat GPS yang tersimpan di database
+High
+MAP-02
+Nama Kontrakan di Marker
+Setiap pin menampilkan nama/label kontrakan secara langsung di atas peta
+High
+MAP-03
+Info Window Detail
+Klik marker membuka popup berisi: nama, alamat, harga mulai, status ketersediaan, dan tombol 'Lihat Detail'
+High
+MAP-04
+Filter Peta
+Filter berdasarkan: harga, jumlah kamar tersedia, fasilitas, rating
+Medium
+MAP-05
+Geolocation User
+Tampilkan posisi user saat ini dan kontrakan terdekat
+Medium
+MAP-06
+Clustering Marker
+Pengelompokan marker otomatis saat zoom out agar peta tidak penuh pin
+Low
+
+3.2 Modul Detail Kontrakan
+Kode
+Fitur
+Deskripsi
+Prioritas
+DET-01
+Galeri Foto & Kondisi
+Halaman detail menampilkan carousel foto-foto kondisi kontrakan (eksterior, interior, kamar mandi, dapur, dll)
+High
+DET-02
+Rating & Ulasan
+Sistem bintang 1-5 dengan komentar dari penyewa sebelumnya, rata-rata rating ditampilkan di card
+High
+DET-03
+Status Ketersediaan
+Badge real-time: 'Tersedia', 'Hampir Penuh', 'Penuh' berdasarkan data unit yang aktif di database
+High
+DET-04
+Informasi Lengkap Unit
+Luas kamar, fasilitas (AC, WiFi, kamar mandi dalam/luar), harga/bulan, harga deposit, aturan kontrakan
+High
+DET-05
+Daftar Unit per Kontrakan
+Tampilkan semua unit dalam satu properti beserta status masing-masing (tersedia/terisi)
+High
+DET-06
+Lokasi & Arah
+Embedded map mini + tombol 'Buka di Google Maps' untuk navigasi
+Medium
+
+3.3 Modul Pemesanan (Booking)
+Kode
+Fitur
+Deskripsi
+Prioritas
+BOK-01
+Form Booking Online
+User mengisi: nama, KTP/identitas, tanggal mulai sewa, durasi sewa, unggah foto KTP
+High
+BOK-02
+Konfirmasi Ketersediaan
+Sistem mengecek real-time bahwa unit masih tersedia saat user submit booking
+High
+BOK-03
+Status Booking
+Status bertahap: Pending → Dikonfirmasi Admin → Aktif → Selesai / Dibatalkan
+High
+BOK-04
+Riwayat Booking
+User dapat melihat semua riwayat booking di halaman profil
+High
+BOK-05
+Pembatalan Booking
+User dapat membatalkan booking sebelum dikonfirmasi admin, dengan kebijakan refund yang jelas
+Medium
+BOK-06
+Kontrak Digital
+Generate PDF kontrak sewa secara otomatis setelah booking dikonfirmasi
+Low
+
+3.4 Modul Pembayaran
+Kode
+Fitur
+Deskripsi
+Prioritas
+PAY-01
+Payment Gateway
+Integrasi dengan Midtrans / Xendit untuk pembayaran via Transfer Bank, Virtual Account, QRIS, e-Wallet (OVO, GoPay, Dana)
+High
+PAY-02
+Invoice Otomatis
+Generate invoice PDF otomatis setiap tagihan bulanan dikirim ke email & notifikasi app
+High
+PAY-03
+Riwayat Pembayaran
+User dapat melihat semua riwayat pembayaran lengkap dengan status (Lunas / Pending / Gagal)
+High
+PAY-04
+Reminder Pembayaran
+Notifikasi otomatis H-7, H-3, H-1 jatuh tempo pembayaran via push notif & email
+High
+PAY-05
+Konfirmasi Manual
+Admin dapat mengkonfirmasi pembayaran transfer manual dengan unggah bukti bayar
+Medium
+PAY-06
+Refund Management
+Admin mengelola proses pengembalian dana dengan status tracking
+Medium
+PAY-07
+Laporan Keuangan
+Rekap pendapatan per kontrakan, per bulan, export ke Excel/PDF
+Medium
+
+3.5 Modul Notifikasi
+Kode
+Fitur
+Deskripsi
+Prioritas
+NOT-01
+Push Notification
+Notifikasi real-time ke app (mobile) menggunakan Firebase Cloud Messaging (FCM)
+High
+NOT-02
+Email Notification
+Email otomatis untuk: konfirmasi booking, invoice, reminder jatuh tempo, konfirmasi pembayaran
+High
+NOT-03
+Notif Admin
+Admin mendapat notif setiap ada booking baru, pembayaran masuk, dan permintaan pembatalan
+High
+NOT-04
+Notif In-App
+Badge & bell icon di navbar menampilkan notifikasi yang belum dibaca
+Medium
+NOT-05
+WhatsApp Integration
+Kirim pesan otomatis via WhatsApp Business API untuk konfirmasi penting
+Low
+
+3.6 Modul Profil User
+Kode
+Fitur
+Deskripsi
+Prioritas
+USR-01
+Registrasi & Login
+Daftar via email + password, atau OAuth (Google). Verifikasi email wajib
+High
+USR-02
+Profil Lengkap
+Nama, foto profil, nomor HP, alamat KTP, pekerjaan, kontak darurat
+High
+USR-03
+Verifikasi KTP
+Upload foto KTP, admin memverifikasi sebelum booking pertama bisa diproses
+High
+USR-04
+Dashboard User
+Ringkasan: unit yang disewa, tagihan mendatang, status pembayaran
+High
+USR-05
+Ubah Password
+Ganti password dengan konfirmasi password lama + OTP ke email/HP
+Medium
+USR-06
+Rating & Review
+User dapat memberikan rating dan ulasan setelah masa sewa berakhir
+Medium
+
+3.7 Modul Admin — Dashboard & Manajemen
+Admin dapat mengakses semua fitur melalui web maupun aplikasi mobile dengan akses penuh untuk monitoring dan pengelolaan.
+Kode
+Fitur
+Deskripsi
+Prioritas
+ADM-01
+Dashboard Overview
+Tampilan ringkasan: total unit, unit tersedia, total pendapatan bulan ini, booking pending, notifikasi terbaru
+High
+ADM-02
+Kelola Properti
+CRUD properti kontrakan: tambah/edit/hapus nama, alamat, koordinat GPS, foto, deskripsi
+High
+ADM-03
+Kelola Unit
+CRUD unit dalam properti: nomor kamar, tipe, harga, fasilitas, foto, status
+High
+ADM-04
+Upload Foto
+Admin dapat mengunggah banyak foto per kontrakan/unit dengan drag-and-drop dan urutan foto
+High
+ADM-05
+Manajemen Booking
+Lihat daftar semua booking, konfirmasi/tolak booking, lihat detail penyewa dan dokumen KTP
+High
+ADM-06
+Manajemen Pembayaran
+Monitor semua transaksi, konfirmasi manual, generate tagihan, kelola refund
+High
+ADM-07
+Manajemen User
+Lihat daftar semua user, verifikasi KTP, blokir akun jika diperlukan
+High
+ADM-08
+Laporan & Analitik
+Grafik pendapatan, tingkat hunian, kontrakan terpopuler, export laporan
+Medium
+ADM-09
+Setting Kontrakan
+Atur aturan, kebijakan pembatalan, harga musiman, diskon khusus
+Medium
+ADM-10
+Multi-Admin Role
+Pembagian role: Super Admin (full access), Admin Properti (akses per lokasi)
+Medium
+
+4. Arsitektur Sistem & Tech Stack
+
+4.1 Tech Stack
+Layer
+Teknologi
+Keterangan
+Frontend Web
+React + Vite
+SPA dengan Vite sebagai build tool, React Router v6 untuk routing
+Mobile App
+React Native / Expo atau PWA
+Dapat menggunakan Capacitor untuk wrap React Web menjadi APK/IPA, atau React Native terpisah
+Peta / Map
+Leaflet.js + OpenStreetMap atau Google Maps API
+Render peta interaktif dengan custom marker dan clustering
+Backend API
+Node.js + Express / Fastify
+RESTful API atau tRPC untuk komunikasi frontend-backend
+ORM
+Prisma ORM
+Type-safe database access dengan auto-migration dan schema management
+Database
+PostgreSQL
+Database relasional utama dengan dukungan geospatial (PostGIS) untuk koordinat
+File Storage
+MinIO / Cloudflare R2 / AWS S3
+Penyimpanan foto kontrakan dan dokumen KTP user
+Auth
+JWT + Refresh Token
+Autentikasi stateless dengan bcrypt password hashing
+Payment
+Midtrans / Xendit
+Payment gateway lokal Indonesia dengan dukungan berbagai metode
+Notifikasi
+Firebase Cloud Messaging (FCM)
+Push notification cross-platform untuk mobile
+Email
+Nodemailer + SMTP / Resend
+Pengiriman email transaksional
+Deployment
+Dokploy
+Self-hosted PaaS di atas VPS untuk deploy semua service via Docker
+Containerisasi
+Docker + Docker Compose
+Semua service (API, DB, Storage) dikemas dalam container
+Reverse Proxy
+Nginx / Traefik (built-in Dokploy)
+Routing domain, SSL termination, load balancing
+
+4.2 Arsitektur Deployment di Dokploy
+Semua komponen di-deploy di atas infrastruktur Dokploy yang berjalan di VPS. Dokploy akan mengelola container lifecycle, environment variables, SSL certificate, dan routing domain secara otomatis.
+Service
+Container
+Port Internal
+Domain / Subdomain
+Frontend Web (User)
+react-user-app
+3000
+app.kontrakanku.id
+Frontend Web (Admin)
+react-admin-app
+3001
+admin.kontrakanku.id
+Backend API
+api-server
+4000
+api.kontrakanku.id
+PostgreSQL DB
+postgres-db
+5432
+Internal only (tidak expose)
+MinIO Object Storage
+minio-storage
+9000 / 9001
+storage.kontrakanku.id
+Nginx / Traefik
+reverse-proxy
+80 / 443
+SSL termination semua subdomain
+
+4.3 Struktur Database (Prisma Schema — Ringkasan)
+Berikut adalah entitas utama yang akan didefinisikan dalam Prisma schema:
+Model
+Field Utama
+Relasi
+User
+id, name, email, password, phone, ktpPhoto, role, isVerified, createdAt
+hasMany: Booking, Payment, Review
+Property
+id, name, address, lat, lng, description, coverImage, adminId, createdAt
+hasMany: Unit, Photo; belongsTo: Admin
+Unit
+id, propertyId, unitNumber, type, price, deposit, facilities, status, description
+hasMany: Booking, Photo; belongsTo: Property
+Photo
+id, url, caption, order, propertyId, unitId
+belongsTo: Property atau Unit
+Booking
+id, userId, unitId, startDate, endDate, status, totalPrice, ktpDocument, createdAt
+hasMany: Payment; belongsTo: User, Unit
+Payment
+id, bookingId, amount, method, status, invoiceUrl, paidAt, dueDate
+belongsTo: Booking
+Review
+id, userId, propertyId, rating, comment, createdAt
+belongsTo: User, Property
+Notification
+id, userId, type, title, body, isRead, createdAt
+belongsTo: User
+
+5. User Flow & Journey
+
+5.1 Flow User (Penyewa)
+User buka app → Lihat peta dengan semua marker kontrakan
+Klik marker → Popup info dasar muncul
+Klik 'Lihat Detail' → Halaman detail kontrakan terbuka
+Lihat foto galeri, rating, fasilitas, dan daftar unit tersedia
+Pilih unit yang diinginkan → Klik 'Booking Sekarang'
+Jika belum login → Redirect ke halaman Login/Register
+Isi form booking: data diri, KTP, tanggal mulai, durasi sewa
+Submit booking → Status: PENDING
+Admin menerima notifikasi booking baru dan melakukan konfirmasi
+User mendapat notifikasi: booking dikonfirmasi → Status: CONFIRMED
+User diarahkan ke halaman pembayaran → Pilih metode bayar
+Selesaikan pembayaran via payment gateway
+Sistem verifikasi pembayaran → Status Booking: ACTIVE
+User & Admin mendapat notifikasi konfirmasi pembayaran berhasil
+
+5.2 Flow Admin
+Admin login ke dashboard (web/mobile)
+Lihat ringkasan di dashboard: unit kosong, pembayaran jatuh tempo, booking pending
+Terima notifikasi booking baru → Review data penyewa & KTP → Konfirmasi atau Tolak
+Monitor pembayaran: cek status, konfirmasi transfer manual jika ada
+Kelola properti: tambah/edit unit, upload foto baru, update harga
+Lihat laporan keuangan per properti per bulan
+
+6. Non-Functional Requirements
+
+Kategori
+Requirement
+Target
+Performance
+Waktu load halaman utama (web)
+< 3 detik pada koneksi 4G
+Performance
+Response time API
+< 500ms untuk 95% request
+Availability
+Uptime sistem
+>= 99.5% (max downtime 3.65 jam/bulan)
+Scalability
+Concurrent user
+Handle 500 concurrent user tanpa degradasi signifikan
+Security
+Autentikasi
+JWT + HTTPS, password hashed dengan bcrypt (min cost 10)
+Security
+Data sensitif
+Enkripsi data KTP dan dokumen keuangan saat disimpan (at rest)
+Security
+API Protection
+Rate limiting, CORS policy, input validation & sanitization
+Usability
+Responsive Design
+UI optimal di semua ukuran layar (mobile-first approach)
+Usability
+Aksesibilitas
+Minimum WCAG 2.1 Level AA compliance
+Data Integrity
+Database backup
+Automated daily backup PostgreSQL, retensi 30 hari
+Compatibility
+Browser support
+Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+Compliance
+Data pribadi
+Sesuai regulasi perlindungan data pribadi (UU PDP Indonesia)
+
+7. Desain API Endpoints (Ringkasan)
+
+7.1 Authentication
+Method
+Endpoint
+Deskripsi
+Auth
+POST
+/api/auth/register
+Registrasi user baru
+Public
+POST
+/api/auth/login
+Login user, return JWT token
+Public
+POST
+/api/auth/logout
+Invalidate refresh token
+User
+POST
+/api/auth/refresh
+Refresh access token
+Public
+POST
+/api/auth/forgot-password
+Kirim link reset password ke email
+Public
+
+7.2 Properties & Units
+Method
+Endpoint
+Deskripsi
+Auth
+GET
+/api/properties
+Get semua properti (dengan koordinat untuk map)
+Public
+GET
+/api/properties/:id
+Get detail properti + unit + foto + rating
+Public
+POST
+/api/properties
+Tambah properti baru
+Admin
+PUT
+/api/properties/:id
+Update data properti
+Admin
+DELETE
+/api/properties/:id
+Hapus properti
+Admin
+GET
+/api/properties/:id/units
+Get semua unit dalam properti
+Public
+POST
+/api/properties/:id/units
+Tambah unit baru
+Admin
+PUT
+/api/units/:id
+Update unit
+Admin
+POST
+/api/properties/:id/photos
+Upload foto properti/unit
+Admin
+
+7.3 Booking & Payment
+Method
+Endpoint
+Deskripsi
+Auth
+POST
+/api/bookings
+Buat booking baru
+User
+GET
+/api/bookings
+Get semua booking (admin: semua, user: milik sendiri)
+User/Admin
+GET
+/api/bookings/:id
+Get detail booking
+User/Admin
+PATCH
+/api/bookings/:id/status
+Update status booking (konfirmasi/tolak)
+Admin
+POST
+/api/bookings/:id/cancel
+Batalkan booking
+User
+POST
+/api/payments/create
+Buat transaksi pembayaran baru
+User
+POST
+/api/payments/webhook
+Webhook notifikasi dari payment gateway
+System
+GET
+/api/payments/:bookingId
+Get riwayat pembayaran booking
+User/Admin
+POST
+/api/payments/:id/confirm
+Konfirmasi manual pembayaran transfer
+Admin
+
+8. Roadmap & Milestone Pengembangan
+
+Estimasi timeline pengembangan dengan tim 2-3 developer full-stack:
+Fase
+Durasi
+Deliverable Utama
+Status
+Fase 0 — Setup & Infrastruktur
+1 Minggu
+Setup repo, Dokploy, Docker, PostgreSQL, Prisma schema awal, CI/CD pipeline
+To Do
+Fase 1 — Core Backend API
+2 Minggu
+Auth API, Property & Unit CRUD, Photo upload, API documentation (Swagger)
+To Do
+Fase 2 — Frontend Map & Detail
+2 Minggu
+Halaman peta interaktif, halaman detail kontrakan, galeri foto, rating display
+To Do
+Fase 3 — Booking System
+1.5 Minggu
+Form booking, status tracking, konfirmasi admin, notifikasi booking
+To Do
+Fase 4 — Payment Integration
+1.5 Minggu
+Integrasi Midtrans/Xendit, invoice PDF, riwayat pembayaran, reminder notifikasi
+To Do
+Fase 5 — User Profile & Review
+1 Minggu
+Profil user lengkap, verifikasi KTP, sistem rating & ulasan
+To Do
+Fase 6 — Admin Dashboard
+2 Minggu
+Dashboard web admin, laporan keuangan, manajemen user, multi-admin role
+To Do
+Fase 7 — Mobile App
+2 Minggu
+Wrap ke React Native/Capacitor atau build APK dari PWA, push notification FCM
+To Do
+Fase 8 — Testing & QA
+1.5 Minggu
+Unit test, integration test, UAT bersama stakeholder, bug fixing
+To Do
+Fase 9 — Launch & Monitoring
+1 Minggu
+Production deploy ke Dokploy, monitoring setup, onboarding admin
+To Do
+
+Total estimasi: ± 16 Minggu (4 Bulan)
+
+9. Risiko & Mitigasi
+
+Risiko
+Dampak
+Probabilitas
+Mitigasi
+Integrasi payment gateway bermasalah atau pending approval
+Tinggi
+Sedang
+Gunakan sandbox testing intensif, siapkan payment gateway alternatif (Xendit sebagai backup Midtrans)
+Koordinat GPS properti tidak akurat
+Sedang
+Rendah
+Validasi koordinat saat input, tampilkan preview peta sebelum simpan
+Volume foto upload membebani storage
+Sedang
+Sedang
+Kompresi otomatis gambar di server (Sharp.js), gunakan CDN untuk delivery
+Keamanan data KTP user bocor
+Sangat Tinggi
+Rendah
+Enkripsi file KTP, akses terbatas hanya admin terverifikasi, audit log setiap akses
+Skalabilitas database dengan banyak properti dan transaksi
+Sedang
+Rendah
+Index yang tepat di Prisma, query optimization, pertimbangkan read replica jika trafik tinggi
+APK tidak lolos review Play Store / App Store
+Tinggi
+Sedang
+Ikuti panduan policy store, siapkan alternatif PWA yang bisa diinstall langsung
+
+10. Open Questions & Asumsi
+
+10.1 Open Questions
+Apakah akan menggunakan Google Maps API (berbayar) atau Leaflet.js + OpenStreetMap (gratis)? Pertimbangkan biaya API key Google Maps untuk traffic tinggi.
+Apakah mobile app dibangun sebagai React Native terpisah atau menggunakan pendekatan Capacitor (wrap React web)? Capacitor lebih cepat tapi fitur native lebih terbatas.
+Apakah perlu fitur chat/messaging antara calon penyewa dan admin langsung di app?
+Berapa lama data booking dan pembayaran perlu disimpan? (Compliance & audit trail)
+Apakah sistem harga bersifat tetap per unit, atau perlu support harga fleksibel (harian, mingguan, bulanan)?
+Apakah dibutuhkan fitur multi-bahasa (Bahasa Indonesia + English)?
+
+10.2 Asumsi
+Semua kontrakan diasumsikan berlokasi di Indonesia, menggunakan Rupiah sebagai mata uang transaksi.
+Admin memiliki koneksi internet yang stabil untuk operasional sehari-hari.
+User telah memiliki rekening bank atau e-wallet yang terdaftar untuk proses pembayaran.
+VPS yang digunakan untuk Dokploy memiliki minimal spesifikasi: 4 vCPU, 8GB RAM, 100GB SSD.
+PostgreSQL versi 15+ akan digunakan untuk memanfaatkan fitur terbaru termasuk dukungan JSON yang lebih baik.
+
+
+
+— End of Document —
+KontrakanKu PRD v1.0.0 | Dokumen ini bersifat konfidensial dan untuk keperluan internal.

@@ -1,0 +1,36 @@
+{
+  "accounts": [
+    {
+      "id": "1",
+      "type": "BANK",
+      "label": "BCA",
+      "accountNumber": "1234567890",
+      "accountHolder": "PT KontrakanKu Indonesia",
+      "isActive": true
+    },
+    {
+      "id": "2",
+      "type": "BANK",
+      "label": "Mandiri",
+      "accountNumber": "131-00-1234567-8",
+      "accountHolder": "PT KontrakanKu Indonesia",
+      "isActive": true
+    },
+    {
+      "id": "3",
+      "type": "GOPAY",
+      "label": "GoPay",
+      "accountNumber": "08123456789",
+      "accountHolder": "KontrakanKu Admin",
+      "isActive": true
+    },
+    {
+      "id": "4",
+      "type": "DANA",
+      "label": "Dana",
+      "accountNumber": "08123456789",
+      "accountHolder": "KontrakanKu Admin",
+      "isActive": true
+    }
+  ]
+}
