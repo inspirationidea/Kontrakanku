@@ -24,9 +24,28 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
+// CORS — izinkan frontend dari Vercel dan localhost
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:4173',
+  process.env.FRONTEND_URL,           // set di Railway: https://kontrakanku.vercel.app
+  /\.vercel\.app$/,                   // semua subdomain Vercel
+  /\.railway\.app$/,                  // Railway preview
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // mobile app / curl
+    const allowed = allowedOrigins.some(o =>
+      o instanceof RegExp ? o.test(origin) : o === origin
+    );
+    callback(null, allowed);
+  },
+  credentials: true,
+}));
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Expose local file uploads directory as static
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
