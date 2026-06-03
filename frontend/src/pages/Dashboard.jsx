@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import { useAuth } from '../context/useAuth';
-import { useToast } from '../context/ToastContext';
-import { Calendar, ShieldCheck, ShieldAlert, CreditCard, Upload, RefreshCw, XCircle, Bell, BellOff, CheckCheck, Clock, AlertCircle, CheckCircle2, Home, MapPin, MessageSquarePlus, MessageSquareWarning, Wrench, CheckCircle, Image } from 'lucide-react';
+import { useToast } from '../context/useToast';
+import { ShieldCheck, ShieldAlert, CreditCard, Upload, RefreshCw, XCircle, Bell, BellOff, CheckCheck, Clock, AlertCircle, CheckCircle2, Home, MessageSquarePlus, MessageSquareWarning, Wrench, CheckCircle, Image } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, refreshUser, isAdmin } = useAuth();
@@ -259,10 +259,6 @@ const Dashboard = () => {
     }
   };
 
-  const formatRupiah = (num) => {
-    if (!num) return 'Rp 0';
-    return 'Rp ' + num.toLocaleString('id-ID');
-  };
 
   return (
     <div className="main-content fade-in" style={styles.container}>

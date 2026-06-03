@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import { Home, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { User, LogOut, LayoutDashboard } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();

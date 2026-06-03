@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getPropertyImageUrl, handleImageError } from '../utils/imageHelper';
 import { useAuth } from '../context/useAuth';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/useToast';
 import AdminSidebar from '../components/AdminSidebar';
 import {
   CheckCircle,
@@ -75,7 +75,6 @@ const AdminDashboard = () => {
   // SuperAdmin states
   const [globalStats, setGlobalStats] = useState(null);
   const [allAdmins, setAllAdmins] = useState([]);
-  const [loadingAdmins, setLoadingAdmins] = useState(false);
   const [newAdmin, setNewAdmin] = useState({ name: '', email: '', phone: '', password: '' });
   const [savingAdmin, setSavingAdmin] = useState(false);
 

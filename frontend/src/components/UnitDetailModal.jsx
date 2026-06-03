@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, BedDouble, Wifi, Wind, Tv, Coffee, ShowerHead, Thermometer, ArrowRight, MapPin } from 'lucide-react';
-import { getPlaceholderImage, getPropertyImageUrl } from '../utils/imageHelper';
+
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace('/api', '');
 

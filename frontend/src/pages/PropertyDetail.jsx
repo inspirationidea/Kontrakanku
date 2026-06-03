@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import { getPropertyImageUrl, handleImageError } from '../utils/imageHelper';
-import { useAuth } from '../context/useAuth';
-import { MapPin, Star, Wifi, Tv, Coffee, Wind, Compass, Calendar, AlertCircle, ArrowLeft } from 'lucide-react';
+import { MapPin, Star, Wifi, Tv, Coffee, Wind, Compass, AlertCircle, ArrowLeft } from 'lucide-react';
 import UnitDetailModal from '../components/UnitDetailModal';
 
 const PropertyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+
   
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,13 +49,6 @@ const PropertyDetail = () => {
     return <Compass size={16} />; // fallback
   };
 
-  const handleBookingRedirect = (unitId) => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    } else {
-      navigate('/booking', { state: { unitId, propertyId: id } });
-    }
-  };
 
   if (loading) {
     return (

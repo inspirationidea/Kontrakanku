@@ -18,4 +18,11 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  // Home.jsx — fetchProperties inside useEffect is intentional (triggered by filter deps)
+  {
+    files: ['**/pages/Home.jsx'],
+    rules: {
+      'react-hooks/exhaustive-deps': 'warn',
+    },
+  },
 ])

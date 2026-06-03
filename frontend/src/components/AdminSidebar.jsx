@@ -7,7 +7,6 @@ import {
   PlusCircle,
   LogOut,
   Home,
-  Shield,
   ChevronRight,
   Users,
   Settings,

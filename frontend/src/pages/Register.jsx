@@ -31,7 +31,7 @@ const Register = () => {
       return;
     }
 
-    const phoneClean = phone.replace(/[\s\-]/g, '');
+    const phoneClean = phone.replace(/[\s-]/g, '');
     if (!/^(\+62|62|0)[0-9]{8,13}$/.test(phoneClean)) {
       setErrorMsg('Format nomor HP tidak valid. Contoh: 081234567890');
       return;

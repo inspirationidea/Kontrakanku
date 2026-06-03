@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -47,38 +47,39 @@ const Home = () => {
   const [showMap, setShowMap] = useState(false);
   const [activeChip, setActiveChip] = useState('all');
   const [showFilter, setShowFilter] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const navigate = useNavigate();
 
-  const fetchProperties = useCallback(async () => {
-    setLoading(true);
-    try {
-      const filters = {};
-      if (searchQuery) filters.search = searchQuery;
-      if (minPrice) filters.minPrice = minPrice;
-      if (maxPrice) filters.maxPrice = maxPrice;
-      const res = await api.properties.getAll(filters);
-      if (res.success) {
-        setProperties(res.data);
-        setCurrentPage(1);
-        if (res.data.length > 0) setMapCenter([res.data[0].lat, res.data[0].lng]);
+  // Proper React pattern: fetch inside useEffect, setState only from async callback
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const filters = {};
+        if (searchQuery) filters.search = searchQuery;
+        if (minPrice)    filters.minPrice = minPrice;
+        if (maxPrice)    filters.maxPrice = maxPrice;
+        const res = await api.properties.getAll(filters);
+        if (!cancelled && res.success) {
+          setProperties(res.data);
+          setCurrentPage(1);
+          if (res.data.length > 0) setMapCenter([res.data[0].lat, res.data[0].lng]);
+        }
+      } catch (err) {
+        if (!cancelled) console.error('Error fetching properties:', err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching properties:', err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, minPrice, maxPrice]);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [searchQuery, minPrice, maxPrice, refreshKey]);
 
-  useEffect(() => { fetchProperties(); }, [fetchProperties]);
-
-  const handleSearchSubmit = (e) => { e.preventDefault(); fetchProperties(); };
-
-  const formatRupiah = (num) => {
-    if (!num) return 'Rp 0';
-    if (num >= 1000000) return `Rp ${(num / 1000000).toFixed(num % 1000000 === 0 ? 0 : 1)} jt`;
-    if (num >= 1000) return `Rp ${(num / 1000).toFixed(0)}rb`;
-    return 'Rp ' + num.toLocaleString('id-ID');
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    // trigger re-fetch by flushing state (already dep of useEffect above)
   };
 
   const formatFull = (num) => num ? 'Rp ' + num.toLocaleString('id-ID') : 'Rp 0';
@@ -273,7 +274,7 @@ const Home = () => {
             <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
               <strong style={{ color: 'var(--text-white)' }}>{sortedProperties.length}</strong> kontrakan ditemukan
             </span>
-            <button onClick={fetchProperties} style={s.refreshBtn} title="Refresh">
+            <button onClick={() => setRefreshKey(k => k + 1)} style={s.refreshBtn} title="Refresh">
               <RefreshCw size={14} />
             </button>
           </div>
