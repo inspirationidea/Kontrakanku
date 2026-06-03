@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import { Home, User, LogOut, LayoutDashboard, Compass } from 'lucide-react';
+import { Home, User, LogOut, LayoutDashboard } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
@@ -21,7 +21,12 @@ const Navbar = () => {
     <nav className="glass-nav" style={styles.nav}>
       <div style={styles.container}>
         <Link to="/" style={styles.logo}>
-          <Compass size={28} color="#06b6d4" style={{ filter: 'drop-shadow(0 0 8px rgba(6, 182, 212, 0.5))' }} />
+          <img
+            src="/kontrakanku.png"
+            alt="KontrakanKu"
+            style={{ height: '36px', width: 'auto', objectFit: 'contain' }}
+            onError={e => { e.target.style.display = 'none'; }}
+          />
           <span className="gradient-text" style={styles.logoText}>KontrakanKu</span>
         </Link>
 

@@ -47,9 +47,12 @@ const AdminSidebar = ({ activeTab, onTabChange }) => {
     <aside style={styles.sidebar}>
       {/* Admin Brand */}
       <div style={styles.brand}>
-        <div style={styles.brandIcon}>
-          <Shield size={24} color="#f59e0b" />
-        </div>
+        <img
+          src="/kontrakanku.png"
+          alt="KontrakanKu"
+          style={{ height: '38px', width: 'auto', objectFit: 'contain' }}
+          onError={e => { e.target.style.display = 'none'; }}
+        />
         <div>
           <h2 style={styles.brandTitle}>KontrakanKu</h2>
           <span style={styles.brandSub}>{user?.role === 'SUPERADMIN' ? 'Super Admin' : 'Admin Panel'}</span>

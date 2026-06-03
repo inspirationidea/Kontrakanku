@@ -1,35 +1,131 @@
 version: '3.8'
 
+# ============================================================
+# KontrakanKu — Multi-Service Docker Compose
+# Untuk Dokploy deployment
+# ============================================================
+# Setup:
+#   1. cp .env.example .env  && isi semua variabel
+#   2. docker compose up -d --build
+#   3. docker compose exec backend npx prisma migrate deploy
+#   4. docker compose exec backend node prisma/seed.js
+# ============================================================
+
 services:
-  postgres-db:
+
+  # ── PostgreSQL + PostGIS ──────────────────────────────────
+  postgres:
     image: postgis/postgis:15-3.3
     container_name: kontrakanku-postgres
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: kontrakanku_user
-      POSTGRES_PASSWORD: kontrakanku_password
-      POSTGRES_DB: kontrakanku_db
-    ports:
-      - "5433:5432"
+      POSTGRES_USER: ${DB_USER:-kontrakanku_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kontrakanku_password}
+      POSTGRES_DB: ${DB_NAME:-kontrakanku_db}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - kontrakanku-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-kontrakanku_user} -d ${DB_NAME:-kontrakanku_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  minio-storage:
+  # ── MinIO Object Storage ──────────────────────────────────
+  minio:
     image: minio/minio:latest
     container_name: kontrakanku-minio
-    restart: always
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+    restart: unless-stopped
     environment:
-      MINIO_ROOT_USER: kontrakanku_storage_admin
-      MINIO_ROOT_PASSWORD: kontrakanku_storage_password
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-kontrakanku_storage_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-kontrakanku_storage_password}
     command: server /data --console-address ":9001"
     volumes:
       - miniodata:/data
+    networks:
+      - kontrakanku-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Ports hanya untuk akses langsung (opsional — bisa di-disable di production)
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
 
+  # ── Backend Express.js API ────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kontrakanku-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 4000
+      DATABASE_URL: postgresql://${DB_USER:-kontrakanku_user}:${DB_PASSWORD:-kontrakanku_password}@postgres:5432/${DB_NAME:-kontrakanku_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-kontrakanku_storage_admin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-kontrakanku_storage_password}
+      MINIO_USE_SSL: "false"
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-kontrakanku-assets}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-kontrakanku-webhook-secret}
+    volumes:
+      - uploads:/app/uploads
+    networks:
+      - kontrakanku-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+
+  # ── Frontend React + Nginx ────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:4000/api}
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:4000}
+    container_name: kontrakanku-frontend
+    restart: unless-stopped
+    networks:
+      - kontrakanku-net
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+
+# ── Networks ──────────────────────────────────────────────
+networks:
+  kontrakanku-net:
+    driver: bridge
+
+# ── Volumes ───────────────────────────────────────────────
 volumes:
   pgdata:
     driver: local
   miniodata:
+    driver: local
+  uploads:
     driver: local
