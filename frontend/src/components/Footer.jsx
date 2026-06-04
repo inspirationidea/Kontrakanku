@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Compass, MapPin, Phone, Mail } from 'lucide-react';
+import { Compass, MapPin, Phone, Mail, Smartphone } from 'lucide-react';
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -14,6 +14,14 @@ const Footer = () => {
             <span style={styles.logoText}>KontrakanKu</span>
           </div>
           <p style={styles.tagline}>Platform pencarian & pemesanan kontrakan terpercaya di seluruh Indonesia.</p>
+          <a
+            href="/KontrakanKu.apk"
+            download="KontrakanKu.apk"
+            style={styles.apkBtn}
+          >
+            <Smartphone size={14} />
+            <span>Download APK Android</span>
+          </a>
         </div>
 
         {/* Links */}
@@ -80,6 +88,16 @@ const styles = {
     background: 'var(--accent-gradient)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
+  },
+  apkBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+    marginTop: '0.75rem',
+    background: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.1))',
+    border: '1px solid rgba(139,92,246,0.3)',
+    borderRadius: '20px', padding: '0.4rem 0.9rem',
+    fontSize: '0.78rem', fontWeight: '600',
+    color: '#a78bfa', textDecoration: 'none',
+    transition: 'all 0.2s ease',
   },
   tagline: {
     fontSize: '0.8rem',

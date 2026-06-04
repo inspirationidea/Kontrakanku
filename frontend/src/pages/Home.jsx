@@ -7,6 +7,7 @@ import { getPropertyImageUrl, handleImageError } from '../utils/imageHelper';
 import {
   Search, MapPin, Star, ArrowRight, RefreshCw,
   ChevronLeft, ChevronRight, Map, X, SlidersHorizontal,
+  Smartphone, Download,
 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
@@ -248,6 +249,24 @@ const Home = () => {
               <span style={s.statLabel}>{st.label}</span>
             </div>
           ))}
+        </div>
+
+        {/* Download APK button */}
+        <div style={{ position: 'relative', zIndex: 1, marginTop: '1.25rem' }}>
+          <a
+            href="/KontrakanKu.apk"
+            download="KontrakanKu.apk"
+            style={s.downloadBtn}
+          >
+            <Smartphone size={18} />
+            <span>Download Aplikasi Android</span>
+            <span style={s.downloadBadge}>
+              <Download size={13} /> APK
+            </span>
+          </a>
+          <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', marginTop: '0.5rem' }}>
+            Android 7.0+ · Gratis · Tidak perlu Play Store
+          </p>
         </div>
       </div>
 
@@ -589,6 +608,27 @@ const s = {
     display: 'flex', gap: '2rem',
     marginTop: '0.5rem',
     justifyContent: 'center',
+  },
+  downloadBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
+    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    backdropFilter: 'blur(10px)',
+    color: '#fff',
+    borderRadius: '30px',
+    padding: '0.7rem 1.6rem',
+    fontSize: '0.92rem', fontWeight: '600',
+    fontFamily: 'var(--font-display)',
+    textDecoration: 'none',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+  },
+  downloadBadge: {
+    display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+    background: 'linear-gradient(135deg,#8b5cf6,#06b6d4)',
+    borderRadius: '20px', padding: '0.15rem 0.6rem',
+    fontSize: '0.7rem', fontWeight: '800',
+    letterSpacing: '0.05em',
   },
   statItem: {
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem',
