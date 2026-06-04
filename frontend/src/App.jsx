@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { useAuth } from './context/useAuth';
+import AppUpdateChecker from './components/AppUpdateChecker';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -63,6 +64,7 @@ function App() {
     <Router>
       <AuthProvider>
         <ToastProvider>
+        <AppUpdateChecker />
         <Routes>
           {/* Admin Login — own layout, no Navbar */}
           <Route path="/admin/login" element={<AdminLogin />} />

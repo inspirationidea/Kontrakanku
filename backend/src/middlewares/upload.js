@@ -14,6 +14,7 @@ const createFoldersIfNotExist = () => {
     path.join(UPLOAD_DIR, 'units'),
     path.join(UPLOAD_DIR, 'avatars'),
     path.join(UPLOAD_DIR, 'complaints'),
+    path.join(UPLOAD_DIR, 'apps'),
   ];
 
   folders.forEach((folder) => {
@@ -37,6 +38,8 @@ const storage = multer.diskStorage({
       subfolder = 'avatars';
     } else if (file.fieldname === 'complaintPhoto') {
       subfolder = 'complaints';
+    } else if (file.fieldname === 'appFile') {
+      subfolder = 'apps';
     } else if (req.path.includes('units') || file.fieldname === 'unitPhoto') {
       subfolder = 'units';
     } else {
@@ -53,16 +56,19 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter (accept only images)
+// File filter (accept images + app files)
 const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  // App files
+  if (file.fieldname === 'appFile') {
+    if (['.apk', '.ipa'].includes(ext)) return cb(null, true);
+    return cb(new Error('File aplikasi harus .apk atau .ipa'), false);
+  }
+  // Image files
   const allowedTypes = /jpeg|jpg|png|webp/;
-  const mimetype = allowedTypes.test(file.mimetype);
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-
-  if (mimetype && extname) {
+  if (allowedTypes.test(file.mimetype) && allowedTypes.test(ext)) {
     return cb(null, true);
   }
-  
   const err = new Error('Only image files (jpg, jpeg, png, webp) are allowed!');
   err.status = 400;
   cb(err, false);

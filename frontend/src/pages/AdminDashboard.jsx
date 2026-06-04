@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getPropertyImageUrl, handleImageError } from '../utils/imageHelper';
 import { useAuth } from '../context/useAuth';
@@ -1927,6 +1927,126 @@ const AdminDashboard = () => {
                 </button>
               </div>
             </div>
+
+            {/* ── Update Versi Aplikasi ── */}
+            {(() => {
+              const [appVer, setAppVer] = React.useState(null);
+              const [uploadForm, setUploadForm] = React.useState({ platform: 'android', version: '', versionCode: '', releaseNotes: '', appStoreUrl: '' });
+              const [appFile, setAppFile] = React.useState(null);
+              const [uploadingApp, setUploadingApp] = React.useState(false);
+
+              React.useEffect(() => {
+                api.settings.getAppVersion().then(r => { if (r.success) setAppVer(r.data); }).catch(() => {});
+              }, []);
+
+              const handleUploadApp = async (e) => {
+                e.preventDefault();
+                setUploadingApp(true);
+                try {
+                  const fd = new FormData();
+                  fd.append('platform', uploadForm.platform);
+                  fd.append('version', uploadForm.version);
+                  fd.append('versionCode', uploadForm.versionCode);
+                  fd.append('releaseNotes', uploadForm.releaseNotes);
+                  fd.append('appStoreUrl', uploadForm.appStoreUrl);
+                  if (appFile) fd.append('appFile', appFile);
+                  const res = await api.settings.uploadAppVersion(fd);
+                  if (res.success) {
+                    toast(res.message || 'Versi berhasil diupload!', 'success');
+                    api.settings.getAppVersion().then(r => { if (r.success) setAppVer(r.data); });
+                    setAppFile(null);
+                    setUploadForm(f => ({ ...f, version: '', versionCode: '', releaseNotes: '' }));
+                  }
+                } catch (err) {
+                  toast(err.message || 'Gagal upload versi.', 'error');
+                } finally { setUploadingApp(false); }
+              };
+
+              const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace('/api', '');
+
+              return (
+                <div style={{ ...styles.sectionCard, maxWidth: '720px', marginTop: '1.5rem' }}>
+                  <h2 style={styles.sectionTitle}>🚀 Manajemen Versi Aplikasi</h2>
+                  <p style={styles.formHint}>Upload APK (Android) atau set link App Store (iOS). Semua penyewa akan otomatis mendapat notifikasi update.</p>
+
+                  {/* Versi saat ini */}
+                  {appVer && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.25rem' }}>
+                      {[
+                        { platform: 'android', icon: '🤖', label: 'Android', ver: appVer.android },
+                        { platform: 'ios', icon: '🍎', label: 'iOS', ver: appVer.ios },
+                      ].map(p => (
+                        <div key={p.platform} style={{ padding: '0.85rem 1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                          <p style={{ fontSize: '0.78rem', color: '#6b7280', margin: '0 0 0.35rem', fontWeight: '600', textTransform: 'uppercase' }}>{p.icon} {p.label} — Versi Aktif</p>
+                          <p style={{ fontSize: '1.1rem', fontWeight: '800', color: '#f59e0b', fontFamily: "'Outfit',sans-serif", margin: 0 }}>v{p.ver?.version || '—'}</p>
+                          {p.ver?.fileSize && <p style={{ fontSize: '0.72rem', color: '#6b7280', margin: '0.15rem 0 0' }}>{p.ver.fileSize}</p>}
+                          {p.ver?.downloadUrl && (
+                            <a href={`${API_BASE}${p.ver.downloadUrl}`} target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: '#60a5fa', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.35rem' }}>
+                              ⬇ Download {p.label}
+                            </a>
+                          )}
+                          {p.ver?.appStoreUrl && (
+                            <a href={p.ver.appStoreUrl} target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: '#60a5fa', display: 'block', marginTop: '0.35rem' }}>
+                              🛍 App Store
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Form upload */}
+                  <form onSubmit={handleUploadApp} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.adminLabel}>Platform *</label>
+                      <select style={styles.adminSelect} value={uploadForm.platform} onChange={e => setUploadForm(f => ({ ...f, platform: e.target.value }))}>
+                        <option value="android">🤖 Android (APK)</option>
+                        <option value="ios">🍎 iOS (App Store URL)</option>
+                      </select>
+                    </div>
+                    <div style={styles.editRow}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.adminLabel}>Versi Baru * (contoh: 1.1.0)</label>
+                        <input style={styles.adminInput} placeholder="1.1.0" value={uploadForm.version} onChange={e => setUploadForm(f => ({ ...f, version: e.target.value }))} required />
+                      </div>
+                      {uploadForm.platform === 'android' && (
+                        <div style={styles.formGroup}>
+                          <label style={styles.adminLabel}>Version Code (angka, auto++)</label>
+                          <input type="number" style={styles.adminInput} placeholder="2" value={uploadForm.versionCode} onChange={e => setUploadForm(f => ({ ...f, versionCode: e.target.value }))} />
+                        </div>
+                      )}
+                    </div>
+
+                    {uploadForm.platform === 'android' ? (
+                      <div style={styles.formGroup}>
+                        <label style={styles.adminLabel}>File APK (opsional — biarkan kosong untuk update metadata saja)</label>
+                        <div style={{ ...styles.fileDropZone, padding: '0.75rem' }} onClick={() => document.getElementById('apkFileInput').click()}>
+                          <input id="apkFileInput" type="file" accept=".apk" style={styles.fileInputHidden} onChange={e => setAppFile(e.target.files[0] || null)} />
+                          <label htmlFor="apkFileInput" style={styles.fileDropLabel}>
+                            <Image size={20} color="#6b7280" />
+                            <span style={{ fontSize: '0.82rem' }}>{appFile ? `✓ ${appFile.name} (${(appFile.size/1024/1024).toFixed(1)}MB)` : 'Klik untuk pilih file .APK'}</span>
+                          </label>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={styles.formGroup}>
+                        <label style={styles.adminLabel}>App Store URL</label>
+                        <input style={styles.adminInput} placeholder="https://apps.apple.com/id/app/kontrakanku/..." value={uploadForm.appStoreUrl} onChange={e => setUploadForm(f => ({ ...f, appStoreUrl: e.target.value }))} />
+                      </div>
+                    )}
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.adminLabel}>Catatan Rilis (akan dikirim ke penyewa via notifikasi)</label>
+                      <textarea style={styles.adminTextarea} placeholder="Contoh: Fitur baru: dashboard penyewa diperbarui, perbaikan bug pembayaran..." value={uploadForm.releaseNotes} onChange={e => setUploadForm(f => ({ ...f, releaseNotes: e.target.value }))} />
+                    </div>
+
+                    <button type="submit" style={{ ...styles.adminSubmit, marginTop: 0 }} disabled={uploadingApp}>
+                      {uploadingApp ? 'Mengupload & Notifikasi...' : '🚀 Upload & Kirim Notifikasi ke Semua Penyewa'}
+                    </button>
+                  </form>
+                </div>
+              );
+            })()}
           </div>
         )}
 

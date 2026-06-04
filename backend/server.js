@@ -50,6 +50,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Expose local file uploads directory as static
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Serve app files (APK/IPA) dengan header download
+app.use('/uploads/apps', (req, res, next) => {
+  res.setHeader('Content-Disposition', `attachment; filename="${path.basename(req.path)}"`);
+  next();
+}, express.static(path.join(process.cwd(), 'uploads', 'apps')));
+
 // Main entry welcome route
 app.get('/', (req, res) => {
   res.json({

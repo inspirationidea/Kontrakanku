@@ -132,6 +132,9 @@ export const api = {
     getPaymentAccounts: () => request('/settings/payment-accounts', { method: 'GET' }),
     savePaymentAccounts: (accounts) =>
       request('/settings/payment-accounts', { method: 'PUT', body: { accounts } }),
+    getAppVersion: () => request('/settings/app-version', { method: 'GET' }),
+    uploadAppVersion: (formData) =>
+      request('/settings/app-version', { method: 'POST', body: formData }),
   },
 
   stats: {

@@ -1,0 +1,17 @@
+{
+  "android": {
+    "version": "1.0.0",
+    "versionCode": 1,
+    "fileName": "KontrakanKu.apk",
+    "downloadUrl": "/uploads/apps/KontrakanKu.apk",
+    "releaseNotes": "Rilis perdana KontrakanKu — cari, booking, dan kelola kontrakan dengan mudah.",
+    "fileSize": "3.0 MB",
+    "updatedAt": "2026-06-04T00:00:00.000Z"
+  },
+  "ios": {
+    "version": "1.0.0",
+    "appStoreUrl": "",
+    "releaseNotes": "Segera hadir di App Store.",
+    "updatedAt": "2026-06-04T00:00:00.000Z"
+  }
+}
