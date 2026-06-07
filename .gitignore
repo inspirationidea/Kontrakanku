@@ -65,5 +65,5 @@ frontend/android/.cxx/
 
 # ── Generated docs & APK ──
 KontrakanKu-Dokumentasi-Klien.html
-KontrakanKu-v1.0-release.apk
+*.apk
 frontend/android/app/release/

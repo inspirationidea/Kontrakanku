@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:android": "cp .env.android .env.local && vite build && npx cap sync android",
+    "build:android:release": "cp .env.production .env.local && NODE_ENV=production vite build && npx cap sync android",
     "android:sync": "npx cap sync android",
     "android:open": "npx cap open android",
     "android:run": "npx cap run android",

@@ -1,19 +1,22 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const config: CapacitorConfig = {
   appId: 'com.kontrakanku.app',
   appName: 'KontrakanKu',
   webDir: 'dist',
   server: {
-    // Development: set CAPACITOR_SERVER_URL ke IP lokal, misal: http://192.168.1.x:4000
-    // Production: set CAPACITOR_SERVER_URL ke domain backend dengan HTTPS
+    // hostname hanya di production agar CORS cookie bekerja dengan benar
+    ...(isProd ? { hostname: 'app.kontrakanku.id' } : {}),
+    // Saat development: set CAPACITOR_SERVER_URL ke http://<IP-lokal>:5173
     url: process.env.CAPACITOR_SERVER_URL || undefined,
-    cleartext: process.env.NODE_ENV !== 'production', // HTTP hanya di dev
+    cleartext: !isProd,
   },
   android: {
-    allowMixedContent: process.env.NODE_ENV !== 'production',
+    allowMixedContent: !isProd,
     captureInput: true,
-    webContentsDebuggingEnabled: process.env.NODE_ENV !== 'production', // matikan di production
+    webContentsDebuggingEnabled: !isProd,
   },
   plugins: {
     SplashScreen: {
